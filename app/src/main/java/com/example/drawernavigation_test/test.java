@@ -9,18 +9,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.BreakIterator;
 import java.util.Random;
 
 public class test extends AppCompatActivity {
 
-    private TextView letterTextView, answerTextView;
+    private TextView letterTextView, answerTextView, resultTextView;
     private char[] skyLetters = {'b', 'd', 'f', 'h', 'k', 'l', 't'};
     private char[] grassLetters = {'g', 'j', 'p', 'q', 'y'};
     private char[] rootLetters = {'a', 'c', 'e', 'i', 'm', 'n', 'o', 'r', 's', 'u', 'v', 'w', 'x', 'z'};
@@ -34,7 +32,7 @@ public class test extends AppCompatActivity {
     private static final String COLUMN_QUESTION = "question";
     private static final String COLUMN_SELECTED_ANSWER = "selected_answer";
     private static final String COLUMN_CORRECT_ANSWER = "correct_answer";
-    private TextView resultTextView;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,29 +42,15 @@ public class test extends AppCompatActivity {
         letterTextView = findViewById(R.id.textView);
         answerTextView = findViewById(R.id.textView2);
         resultTextView = findViewById(R.id.resultTextView);
+
         Button skyButton = findViewById(R.id.button);
-        skyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkAnswer("Sky Letter");
-            }
-        });
+        skyButton.setOnClickListener(v -> checkAnswer("Sky Letter"));
 
         Button grassButton = findViewById(R.id.button2);
-        grassButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkAnswer("Grass Letter");
-            }
-        });
+        grassButton.setOnClickListener(v -> checkAnswer("Grass Letter"));
 
         Button rootButton = findViewById(R.id.button3);
-        rootButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkAnswer("Root Letter");
-            }
-        });
+        rootButton.setOnClickListener(v -> checkAnswer("Root Letter"));
 
         createNewQuestion();
 
@@ -82,7 +66,6 @@ public class test extends AppCompatActivity {
 
             @Override
             public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                // Drop the table if it exists
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
                 onCreate(db);
             }
@@ -102,15 +85,8 @@ public class test extends AppCompatActivity {
 
         questionCount++;
         if (questionCount < 5) {
-            // Wait for 1 second and create a new question
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    createNewQuestion();
-                }
-            }, 1000);
+            new Handler().postDelayed(this::createNewQuestion, 1000);
         } else {
-// All questions asked
             answerTextView.setText("Quiz completed!");
             disableButtons();
             showQuizResult();
@@ -126,7 +102,8 @@ public class test extends AppCompatActivity {
         Random random = new Random();
         int category = random.nextInt(3);
         char letter;
-        switch (category) {
+        switch (category)
+        {
             case 0:
                 letter = skyLetters[random.nextInt(skyLetters.length)];
                 answerString = "Sky Letter";
@@ -155,32 +132,38 @@ public class test extends AppCompatActivity {
     private void saveResultToDatabase(boolean isCorrect) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_QUESTION, "Question " + (questionCount + 1));
-        values.put(COLUMN_SELECTED_ANSWER, answerTextView.getText().toString());
+        values.put(COLUMN_SELECTED_ANSWER, answerString);
         values.put(COLUMN_CORRECT_ANSWER, isCorrect ? "Correct" : "Incorrect");
-        database.insert(TABLE_NAME, null, values);
+        long rowId = database.insert(TABLE_NAME, null, values);
+
+        if (rowId == -1) {
+            Toast.makeText(this, "Failed to save result to database", Toast.LENGTH_SHORT).show();
+        }
     }
+
+
 
     private void showQuizResult() {
         Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
         int totalQuestions = cursor.getCount();
         int correctAnswers = 0;
 
-        while (cursor.moveToNext()) {
-            @SuppressLint("Range") String correctAnswer = cursor.getString(cursor.getColumnIndex(COLUMN_CORRECT_ANSWER));
-
-            if (correctAnswer.equals("Correct")) {
-                correctAnswers++;
-            }
+        if (cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") String correctAnswer = cursor.getString(cursor.getColumnIndex(COLUMN_CORRECT_ANSWER));
+                if (correctAnswer != null && correctAnswer.equals("Correct")) {
+                    correctAnswers++;
+                }
+            } while (cursor.moveToNext());
         }
+
         cursor.close();
 
-        int score = (correctAnswers * 5) / totalQuestions;
+        int score = correctAnswers * 5 / totalQuestions;
         String resultText = "Quiz Score: " + score + " out of 5";
 
         resultTextView.setText(resultText);
     }
-
-
 
     @Override
     protected void onDestroy() {

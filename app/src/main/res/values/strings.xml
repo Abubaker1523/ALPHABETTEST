@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DRAWERNAVIGATION_TEST</string>
+    <string name="open_drawer">open Navigation Drawer</string>
+    <string name="close_drawer">close Navigation Drawer</string>
+</resources>

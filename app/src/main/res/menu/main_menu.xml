@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<group android:checkableBehavior="single" >
+
+    <item android:id="@+id/test"
+        android:title="TEST"
+        android:icon="@drawable/baseline_menu_book_24"/>
+    <item android:id="@+id/commits"
+        android:title="Go to commits"
+        android:icon="@drawable/baseline_call_made_24"/>
+
+</group>
+
+
+
+</menu>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:gravity="bottom"
+    android:background="@drawable/spider">
+
+    <TextView
+        android:layout_width="271dp"
+        android:layout_height="wrap_content"
+        android:text="ABUBAKER ASGHAR"
+        android:textColor="#ffff"
+        android:textSize="25dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="abubakerasghar125@gmail.com"
+        android:textColor="#ffff"
+        android:textSize="15dp"
+        android:textStyle="bold"/>
+
+
+
+
+</LinearLayout>

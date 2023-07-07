@@ -12,6 +12,12 @@
         android:theme="@style/Theme.DRAWERNAVIGATION_TEST"
         tools:targetApi="31">
         <activity
+            android:name=".CongratulationsFragment"
+            android:exported="false" />
+        <activity
+            android:name=".HomeFragment"
+            android:exported="false" />
+        <activity
             android:name=".test"
             android:exported="false" />
         <activity

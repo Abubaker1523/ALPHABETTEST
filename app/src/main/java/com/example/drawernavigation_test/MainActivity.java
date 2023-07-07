@@ -15,7 +15,7 @@ import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
-  DrawerLayout drawerLayout;
+    DrawerLayout drawerLayout;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -27,56 +27,57 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-      if(drawerLayout.isDrawerOpen(GravityCompat.START))
-      {
-          drawerLayout.closeDrawer(GravityCompat.START);
-      }else {
-          super.onBackPressed();
-      }
+        if(drawerLayout.isDrawerOpen(GravityCompat.START))
+        {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }else {
+            super.onBackPressed();
+        }
 
     }
 
     NavigationView navigationView;
-  Intent intent;
-  ActionBarDrawerToggle actionBarDrawerToggle;
+    Intent intent;
+    ActionBarDrawerToggle actionBarDrawerToggle;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         drawerLayout=findViewById(R.id.drawer_layout);
         navigationView=findViewById(R.id.nav_view);
         actionBarDrawerToggle= new ActionBarDrawerToggle(this,drawerLayout,R.string.open_drawer,R.string.close_drawer);
-          drawerLayout.addDrawerListener(actionBarDrawerToggle);
-          actionBarDrawerToggle.syncState();
-          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-          navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-              @Override
-              public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                  switch (item.getItemId())
-                  {
-                      case R.id.test:
-                      {
-                          Intent intent = new Intent(MainActivity.this, test.class);
-                          startActivity(intent);
-                          break;
+                switch (item.getItemId())
+                {
+                    case R.id.test:
+                    {
+                        Intent intent = new Intent(MainActivity.this, test.class);
+                        startActivity(intent);
+                        break;
 
 
-                      }
-                      case R.id.commits:
-                      {
-                          String url = "https://github.com/Abubaker1523/ALPHABETTEST.git";
-                          Intent websiteIntent = new Intent(Intent.ACTION_VIEW);
-                          websiteIntent.setData(Uri.parse(url));
-                          startActivity(websiteIntent);
-                          break;
-                      }
-                  }
-                  return false;
-              }
-          });
+                    }
+                    case R.id.commits:
+                    {
+                        String url = "https://github.com/Abubaker1523/ALPHABETTEST.git";
+                        Intent websiteIntent = new Intent(Intent.ACTION_VIEW);
+                        websiteIntent.setData(Uri.parse(url));
+                        startActivity(websiteIntent);
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
 
     }
 }

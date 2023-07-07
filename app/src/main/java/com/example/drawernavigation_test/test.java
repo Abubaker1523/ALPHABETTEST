@@ -24,13 +24,13 @@ public class test extends AppCompatActivity {
     private char[] rootLetters = {'a', 'c', 'e', 'i', 'm', 'n', 'o', 'r', 's', 'u', 'v', 'w', 'x', 'z'};
     private String answerString = "";
     private int questionCount = 0;
+    private int correctAnswers = 0;
 
     private SQLiteDatabase database;
     private static final String DATABASE_NAME = "QuizResults.db";
     private static final String TABLE_NAME = "results";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_QUESTION = "question";
-    private static final String COLUMN_SELECTED_ANSWER = "selected_answer";
     private static final String COLUMN_CORRECT_ANSWER = "correct_answer";
 
     @SuppressLint("MissingInflatedId")
@@ -60,8 +60,7 @@ public class test extends AppCompatActivity {
                 db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
                         COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_QUESTION + " TEXT, " +
-                        COLUMN_SELECTED_ANSWER + " TEXT, " +
-                        COLUMN_CORRECT_ANSWER + " TEXT)");
+                        COLUMN_CORRECT_ANSWER + " INTEGER)");
             }
 
             @Override
@@ -77,10 +76,11 @@ public class test extends AppCompatActivity {
     private void checkAnswer(String selectedAnswer) {
         if (selectedAnswer.equals(answerString)) {
             answerTextView.setText("Awesome, your answer is correct!");
-            saveResultToDatabase(true);
+            correctAnswers++;
+            saveResultToDatabase(1);
         } else {
             answerTextView.setText("Incorrect! The answer is " + answerString);
-            saveResultToDatabase(false);
+            saveResultToDatabase(0);
         }
 
         questionCount++;
@@ -102,8 +102,7 @@ public class test extends AppCompatActivity {
         Random random = new Random();
         int category = random.nextInt(3);
         char letter;
-        switch (category)
-        {
+        switch (category) {
             case 0:
                 letter = skyLetters[random.nextInt(skyLetters.length)];
                 answerString = "Sky Letter";
@@ -129,11 +128,11 @@ public class test extends AppCompatActivity {
         rootButton.setEnabled(false);
     }
 
-    private void saveResultToDatabase(boolean isCorrect) {
+    private void saveResultToDatabase(int isCorrect) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_QUESTION, "Question " + (questionCount + 1));
-        values.put(COLUMN_SELECTED_ANSWER, answerString);
-        values.put(COLUMN_CORRECT_ANSWER, isCorrect ? "Correct" : "Incorrect");
+        values.put(COLUMN_CORRECT_ANSWER, isCorrect);
+
         long rowId = database.insert(TABLE_NAME, null, values);
 
         if (rowId == -1) {
@@ -141,29 +140,29 @@ public class test extends AppCompatActivity {
         }
     }
 
-
-
     private void showQuizResult() {
-        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
-        int totalQuestions = cursor.getCount();
+        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, COLUMN_ID + " DESC", "5");
+
+        int totalQuestions = 0;
         int correctAnswers = 0;
 
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToLast()) {
             do {
-                @SuppressLint("Range") String correctAnswer = cursor.getString(cursor.getColumnIndex(COLUMN_CORRECT_ANSWER));
-                if (correctAnswer != null && correctAnswer.equals("Correct")) {
+                @SuppressLint("Range") int correctAnswer = cursor.getInt(cursor.getColumnIndex(COLUMN_CORRECT_ANSWER));
+                if (correctAnswer == 1) {
                     correctAnswers++;
                 }
-            } while (cursor.moveToNext());
+                totalQuestions++;
+            } while (cursor.moveToPrevious() && totalQuestions < 5);
         }
 
         cursor.close();
 
-        int score = correctAnswers * 5 / totalQuestions;
-        String resultText = "Quiz Score: " + score + " out of 5";
+        String resultText = "Quiz Score: " + correctAnswers + " out of " + totalQuestions;
 
         resultTextView.setText(resultText);
     }
+
 
     @Override
     protected void onDestroy() {
